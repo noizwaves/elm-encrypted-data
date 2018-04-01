@@ -7,11 +7,11 @@ An experiment in encryption with Elm. See it live [here](https://noizwaves-elm-e
 With Elm 0.18 installed and this repo cloned, run:
 
 1. `elm-reactor`
-1. [Navigate here](http://localhost:8000/Main.elm) to see the code running
+1. [Navigate here](http://localhost:8000/ElmEncryptedData.elm) to see the code running
 
 ## Deployment
 
 Deployments are made using Surge (`npm install --global surge`)
 
-1. `elm-make Main.elm --output=build/index.html`
-1. `surge`
+1. `elm-make ElmEncryptedData.elm --output=build/index.html`
+1. `surge build noizwaves-elm-encrypted-data.surge.sh`
