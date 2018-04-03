@@ -1,8 +1,8 @@
 port module Main exposing (..)
 
 import Html exposing (Html, br, button, div, form, hr, h2, input, label, table, text, tr, td, th, textarea)
-import Html.Events exposing (onInput, onClick)
-import Html.Attributes exposing (disabled, value, rows, cols, placeholder)
+import Html.Events exposing (onInput, onClick, on)
+import Html.Attributes exposing (disabled, id, value, rows, cols, placeholder, type_)
 
 import Task
 import Time exposing (Time, inMilliseconds)
@@ -15,7 +15,8 @@ import Crypto.Strings exposing (encrypt, decrypt)
 
 
 port downloadFile : String -> Cmd msg
-
+port fileSelected : String -> Cmd msg
+port fileContentRead : (String -> msg) -> Sub msg
 
 type alias Book =
     { title: String
@@ -43,6 +44,8 @@ type Msg
     | AddBook
     | DoEncryption
     | DoDecryption
+    | DoUpload
+    | FileContentRead String
     | DoDownload
 
 
@@ -97,6 +100,24 @@ update msg model =
                 { model | data = data, addingTitle = "", addingAuthor = "", message = message } ! []
         DoDownload ->
             model ! [ downloadFile model.encrypted ]
+        DoUpload ->
+            model ! [ fileSelected "upload" ]
+        FileContentRead encrypted ->
+            let
+                result = decrypt model.key encrypted
+            in
+                case result of
+                    Ok plainText ->
+                        let
+                            decodeResult = decodeString decodeBooks plainText
+                        in
+                            case decodeResult of
+                                Ok data ->
+                                    { model | encrypted = encrypted, message = plainText, data = data } ! []
+                                Err errMessage ->
+                                    { model | encrypted = encrypted, message = plainText, data = [] } ! []
+                    Err errorMessage ->
+                        { model | encrypted = encrypted } ! []
 
 
 view : Model -> Html Msg
@@ -127,6 +148,7 @@ view model = div []
     , hr [] []
     , h2 [] [ text "File Persistence" ]
     , button [ onClick DoDownload ] [ text "Download" ]
+    , input [ type_ "file", id "upload", on "change" (Json.Decode.succeed DoUpload) ] []
     ]
 
 viewBooks : List Book -> Html Msg
@@ -199,9 +221,14 @@ init =
         model ! [ Task.perform TimeResult Time.now ]
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model = fileContentRead FileContentRead
+
+
+main : Program Never Model Msg
 main = Html.program
     { init = init
     , view = view
     , update = update
-    , subscriptions = \m -> Sub.none
+    , subscriptions = subscriptions
     }
