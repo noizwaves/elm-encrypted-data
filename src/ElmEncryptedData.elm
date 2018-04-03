@@ -1,3 +1,5 @@
+port module Main exposing (..)
+
 import Html exposing (Html, br, button, div, form, hr, h2, input, label, table, text, tr, td, th, textarea)
 import Html.Events exposing (onInput, onClick)
 import Html.Attributes exposing (disabled, value, rows, cols, placeholder)
@@ -10,6 +12,10 @@ import Json.Decode exposing (Decoder, decodeString, map2, field)
 
 import Random exposing (Seed, initialSeed)
 import Crypto.Strings exposing (encrypt, decrypt)
+
+
+port downloadFile : String -> Cmd msg
+
 
 type alias Book =
     { title: String
@@ -37,6 +43,7 @@ type Msg
     | AddBook
     | DoEncryption
     | DoDecryption
+    | DoDownload
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -88,6 +95,8 @@ update msg model =
                 message = encode 0 (encodeBooks data)
             in
                 { model | data = data, addingTitle = "", addingAuthor = "", message = message } ! []
+        DoDownload ->
+            model ! [ downloadFile model.encrypted ]
 
 
 view : Model -> Html Msg
@@ -115,6 +124,9 @@ view model = div []
     , h2 [] [ text "Persistence" ]
     , label [] [ text "Encrypted Data: " ], br [] []
     , textarea [ value model.encrypted, onInput ChangeEncrypted, rows 8, cols 60 ] [ ]
+    , hr [] []
+    , h2 [] [ text "File Persistence" ]
+    , button [ onClick DoDownload ] [ text "Download" ]
     ]
 
 viewBooks : List Book -> Html Msg
