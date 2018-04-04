@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Spike on integration of Elm with encryption",
   "scripts": {
-    "build": "webpack --display-error-details",
+    "build": "webpack-cli --display-error-details",
     "start": "webpack-dev-server --port 3000"
   },
   "repository": "https://github.com/noizwaves/elm-encrypted-data",
@@ -11,14 +11,15 @@
   "author": "Adam Neumann",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^9.6.1",
-    "elm": "^0.18.0",
-    "elm-webpack-loader": "^4.3.1",
-    "file-loader": "^0.11.2",
-    "ts-loader": "^3.1.1",
-    "typescript": "^2.6.1",
-    "webpack": "^3.5.4",
-    "webpack-dev-server": "^2.7.1"
+    "@types/node": "9.6.2",
+    "elm": "0.18.0",
+    "elm-webpack-loader": "4.5.0",
+    "file-loader": "1.1.11",
+    "ts-loader": "4.1.0",
+    "typescript": "2.8.1",
+    "webpack": "4.4.1",
+    "webpack-cli": "2.0.13",
+    "webpack-dev-server": "3.1.1"
   },
   "dependencies": {}
 }
