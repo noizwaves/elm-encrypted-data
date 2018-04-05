@@ -5,10 +5,6 @@ const mountNode = document.getElementById('main');
 
 const app = Elm.Main.embed(mountNode);
 
-app.ports.downloadFile.subscribe((cypherText: string) => {
-    location.href = 'data:application/octet-stream,' + encodeURIComponent(cypherText);
-});
-
 app.ports.fileSelected.subscribe((id: string) => {
     const node = document.getElementById(id) as HTMLInputElement;
     if (node === null) {

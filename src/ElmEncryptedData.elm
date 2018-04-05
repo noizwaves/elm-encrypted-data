@@ -1,12 +1,13 @@
 port module Main exposing (..)
 
-import Html exposing (Html, br, button, div, form, hr, h2, input, label, table, text, tr, td, th, textarea)
+import Html exposing (Attribute, Html, a, br, button, div, form, hr, h2, input, label, table, text, tr, td, th, textarea)
 import Html.Events exposing (onInput, onClick, on)
-import Html.Attributes exposing (disabled, id, value, rows, cols, placeholder, type_)
+import Html.Attributes exposing (disabled, downloadAs, id, href, value, rows, cols, placeholder, type_)
 
 import Task
 import Time exposing (Time, inMilliseconds)
 
+import String.Extra exposing (replace)
 import Json.Encode exposing (encode, object, string, list, Value)
 import Json.Decode exposing (Decoder, decodeString, map2, field)
 
@@ -14,7 +15,6 @@ import Random exposing (Seed, initialSeed)
 import Crypto.Strings exposing (encrypt, decrypt)
 
 
-port downloadFile : String -> Cmd msg
 port fileSelected : String -> Cmd msg
 port fileContentRead : (String -> msg) -> Sub msg
 
@@ -46,7 +46,6 @@ type Msg
     | DoDecryption
     | DoUpload
     | FileContentRead String
-    | DoDownload
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -98,8 +97,6 @@ update msg model =
                 message = encode 0 (encodeBooks data)
             in
                 { model | data = data, addingTitle = "", addingAuthor = "", message = message } ! []
-        DoDownload ->
-            model ! [ downloadFile model.encrypted ]
         DoUpload ->
             model ! [ fileSelected "upload" ]
         FileContentRead encrypted ->
@@ -147,9 +144,21 @@ view model = div []
     , textarea [ value model.encrypted, onInput ChangeEncrypted, rows 8, cols 60 ] [ ]
     , hr [] []
     , h2 [] [ text "File Persistence" ]
-    , button [ onClick DoDownload ] [ text "Download" ]
+    , a [ hrefData model.encrypted, downloadAs "data.enc" ] [ text "Download" ]
     , input [ type_ "file", id "upload", on "change" (Json.Decode.succeed DoUpload) ] []
     ]
+
+
+hrefData : String -> Attribute msg
+hrefData data = href ("data:application/octet-stream," ++ (encodeForUri data))
+
+
+encodeForUri : String -> String
+encodeForUri s = s
+    |> replace "\n" "%0A"
+    |> replace "\r" "%0D"
+    |> replace "/" "%2F"
+
 
 viewBooks : List Book -> Html Msg
 viewBooks books =
