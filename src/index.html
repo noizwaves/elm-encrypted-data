@@ -5,6 +5,25 @@
     <title>ElmEncryptedData</title>
 </head>
 <body>
-<div id="main"></div>
 <script src="app.js"></script>
+<script>
+    const app = Elm.Main.fullscreen();
+
+    app.ports.fileSelected.subscribe((id) => {
+        const node = document.getElementById(id);
+        if (node === null) {
+            return;
+        }
+
+        const file = node.files[0];
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            const content = event.target.result;
+            app.ports.fileContentRead.send(content);
+        };
+
+        reader.readAsText(file);
+    });
+</script>
 </body>

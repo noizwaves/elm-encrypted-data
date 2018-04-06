@@ -1,0 +1,29 @@
+plugins {
+    id "org.mohme.gradle.elm-plugin" version "1.0.0"
+}
+
+elmMake.mainModuleName = "ElmEncryptedData.elm"
+elmMake.sourceDir = file("src")
+elmMake.buildDir = file("build")
+elmMake.targetModuleName = "app.js"
+
+
+task copyHtml(type: Copy) {
+    from "src/index.html"
+    into "build"
+}
+
+task serve << {
+    SimpleHttpFileServerFactory factory = new SimpleHttpFileServerFactory()
+    HttpFileServer server = factory.start(new File("build/"), 8081)
+    println("Server started, visit http://localhost:8081/index.html")
+    java.lang.Thread.sleep(Long.MAX_VALUE)
+}
+
+task clean(type: Delete) {
+    delete "build"
+}
+
+task build {
+    dependsOn elmMake, copyHtml
+}
